@@ -264,8 +264,8 @@ flow_A     = flow_A_S2 + flow_A_S3
 flow_BM_S2 = prod["S2"]["B"] + prod["S2"]["M"]
 flow_BM_S3 = prod["S3"]["B"] + prod["S3"]["M"]
 flow_BM    = flow_BM_S2 + flow_BM_S3
-flow_E3    = flow_BM / 2
-flow_E4    = flow_BM / 2
+flow_E3    = min(15, math.ceil(flow_BM / 2))
+flow_E4    = flow_BM - flow_E3
 total_prod = flow_LC + flow_A + flow_BM
 
 sum_S1 = prod["S1"]["L"] + prod["S1"]["C"]
@@ -434,10 +434,10 @@ with tab_anim:
         "dist_long":  dist_long,
         "load_time":  load_time,
         "TS":         55,                    # factor de compresión temporal
-        "flow_E1":    round(flow_LC,  1),
-        "flow_E2":    round(flow_A,   1),
-        "flow_E3":    round(flow_E3,  1),
-        "flow_E4":    round(flow_E4,  1),
+        "flow_E1":    int(flow_LC),
+        "flow_E2":    int(flow_A),
+        "flow_E3":    int(flow_E3),
+        "flow_E4":    int(flow_E4),
         "flow_total": total_prod,
         "agv_r1":     agv_r1,
         "agv_r2a":    max(1 if flow_A_S2 > 0 else 0, _r2a),
@@ -628,8 +628,7 @@ function drawCons(x,y,col,lbl,sub,flow){
   ctx.fillStyle=col; ctx.font='bold 13px monospace';
   ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(lbl,x,y-6);
   ctx.fillStyle='#cbd5e1'; ctx.font='bold 9px monospace';
-  let f_str = (flow % 1 === 0) ? flow.toString() : flow.toFixed(1);
-  ctx.fillText(f_str+'/15',x,y+7);
+  ctx.fillText(flow.toFixed(0)+'/15',x,y+7);
   ctx.fillStyle='#64748b'; ctx.font='8px sans-serif'; ctx.fillText(sub,x,y+H2/2+13);
   ctx.fillStyle=col+'55'; ctx.font='bold 7px sans-serif'; ctx.fillText('CONSUMO',x,y-H2/2-9);
 }
@@ -946,10 +945,10 @@ with tab_valid:
         ("Producción S1 = 20 lotes/h", f"{sum_S1}/20",     valid_S1, "S1: L + C deben sumar exactamente 20"),
         ("Producción S2 = 20 lotes/h", f"{sum_S2}/20",     valid_S2, "S2: A + B + M deben sumar exactamente 20"),
         ("Producción S3 = 20 lotes/h", f"{sum_S3}/20",     valid_S3, "S3: A + B + M deben sumar exactamente 20"),
-        ("Consumo E1 ≤ 15 lotes/h",    f"{flow_LC:.1f}/15", valid_E1, "Entrada 1 (L y C): máximo 15 lotes/h"),
-        ("Consumo E2 ≤ 15 lotes/h",    f"{flow_A:.1f}/15",  valid_E2, "Entrada 2 (Prod A): máximo 15 lotes/h"),
-        ("Consumo E3 ≤ 15 lotes/h",    f"{flow_E3:.1f}/15", valid_E3, "Entrada 3 (B y M): máximo 15 lotes/h"),
-        ("Consumo E4 ≤ 15 lotes/h",    f"{flow_E4:.1f}/15", valid_E4, "Entrada 4 (B y M): máximo 15 lotes/h"),
+        ("Consumo E1 ≤ 15 lotes/h",    f"{int(flow_LC)}/15", valid_E1, "Entrada 1 (L y C): máximo 15 lotes/h"),
+        ("Consumo E2 ≤ 15 lotes/h",    f"{int(flow_A)}/15",  valid_E2, "Entrada 2 (Prod A): máximo 15 lotes/h"),
+        ("Consumo E3 ≤ 15 lotes/h",    f"{int(flow_E3)}/15", valid_E3, "Entrada 3 (B y M): máximo 15 lotes/h"),
+        ("Consumo E4 ≤ 15 lotes/h",    f"{int(flow_E4)}/15", valid_E4, "Entrada 4 (B y M): máximo 15 lotes/h"),
     ]
     vc1, vc2 = st.columns(2)
     for i, (vn, vv, vok, vd) in enumerate(_V):

@@ -45,7 +45,7 @@ st.set_page_config(
     page_title="Sistema AGV · Arauco Plywood",
     page_icon="🏭",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -62,53 +62,70 @@ st.markdown("""
 }
 
 /* ── DESKTOP: sidebar siempre visible, sin botón de colapso ────────────── */
-@media (min-width: 768px) {
+@media (min-width: 992px) {
     [data-testid="stSidebarCollapseButton"] {
         display: none !important;
     }
     [data-testid="stSidebar"] {
-        min-width: 230px !important;
+        min-width: 300px !important;
+        max-width: 350px !important;
     }
 }
 
-/* ── MÓVIL: permitir colapso, botón naranja visible y flotante ──────────── */
-@media (max-width: 767px) {
-    /* Botón para ABRIR la barra cuando está cerrada */
+/* ── MÓVIL: permitir colapso, botón premium siempre accesible ──────────── */
+@media (max-width: 991px) {
+    /* Botón para ABRIR: Estilo "Pestaña" flotante premium */
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="collapsedControl"] {
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
         position: fixed !important;
-        top: 12px !important;
-        left: 12px !important;
-        z-index: 999999 !important;
-        background-color: #EA7600 !important;
-        border-radius: 10px !important;
-        padding: 8px !important;
-        box-shadow: 0 4px 16px rgba(234,118,0,0.5) !important;
+        top: 20px !important;
+        left: 0px !important;
+        z-index: 1000001 !important;
+        background: #EA7600 !important;
+        border-radius: 0 12px 12px 0 !important;
+        padding: 10px 14px 10px 8px !important;
+        box-shadow: 4px 0 15px rgba(234,118,0,0.4) !important;
+        transition: all 0.3s ease;
+    }
+    [data-testid="stSidebarCollapsedControl"]:hover,
+    [data-testid="collapsedControl"]:hover {
+        padding-right: 20px !important;
+        background: #FF8C00 !important;
     }
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="collapsedControl"] svg {
         fill: white !important;
         stroke: white !important;
+        width: 24px !important;
+        height: 24px !important;
     }
-    /* Botón para CERRAR dentro de la barra: también visible y naranja */
+    
+    /* Botón para CERRAR dentro de la barra lateral */
     [data-testid="stSidebarCollapseButton"] {
         display: flex !important;
         visibility: visible !important;
-        background-color: rgba(234,118,0,0.15) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(234,118,0,0.4) !important;
+        margin-top: 10px !important;
+        background-color: rgba(234,118,0,0.1) !important;
+        border-radius: 10px !important;
+        border: 1px solid rgba(234,118,0,0.3) !important;
+        transition: all 0.2s ease;
+    }
+    [data-testid="stSidebarCollapseButton"]:hover {
+        background-color: rgba(234,118,0,0.2) !important;
     }
     [data-testid="stSidebarCollapseButton"] svg {
         fill: #EA7600 !important;
         stroke: #EA7600 !important;
     }
-    /* Que el área principal no quede aplastada */
+
+    /* Ajuste de ancho de barra en móvil para no cubrir todo */
     [data-testid="stSidebar"] {
         width: 85vw !important;
         max-width: 320px !important;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5) !important;
     }
 }
 

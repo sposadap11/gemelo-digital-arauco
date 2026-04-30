@@ -60,7 +60,12 @@ st.markdown("""
     background: linear-gradient(180deg, #080d1a 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(6,182,212,0.12) !important;
 }
-[data-testid="stSidebar"] > div { padding-top: 0 !important; }
+[data-testid="collapsedControl"] {
+    color: #06b6d4 !important;
+    background: rgba(15,23,42,0.8) !important;
+    border-radius: 50% !important;
+    z-index: 999999 !important;
+}
 #MainMenu, footer, [data-testid="stToolbar"] { visibility: hidden; }
 .stDeployButton { display: none; }
 
@@ -166,23 +171,7 @@ with st.sidebar:
     <style>@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}</style>
     """, unsafe_allow_html=True)
 
-    # ── Escenarios ─────────────────────────────────────────────────────────
-    st.markdown('<div class="sb-section">⚡ Escenarios Rápidos</div>',
-                unsafe_allow_html=True)
-    _SCEN = [
-        ("🎯 Óptimo Base",    {"S1":{"L":10,"C":10},"S2":{"A":8,"B":6,"M":6},"S3":{"A":7,"B":7,"M":6}}),
-        ("📈 Pico Prod A",    {"S1":{"L":8,"C":7},"S2":{"A":15,"B":3,"M":2},"S3":{"A":15,"B":3,"M":2}}),
-        ("⚖️ Mix Equilibrado",{"S1":{"L":7,"C":8},"S2":{"A":7,"B":7,"M":6},"S3":{"A":8,"B":6,"M":6}}),
-        ("🔵 Foco B/M",       {"S1":{"L":8,"C":7},"S2":{"A":4,"B":8,"M":8},"S3":{"A":4,"B":8,"M":8}}),
-    ]
-    sc1, sc2 = st.columns(2)
-    for i, (sname, sprod) in enumerate(_SCEN):
-        col_b = sc1 if i % 2 == 0 else sc2
-        if col_b.button(sname, use_container_width=True, key=f"sc_{i}"):
-            st.session_state.prod = {k: dict(v) for k, v in sprod.items()}
-            st.rerun()
 
-    st.divider()
 
     # ── Mezcla de Producción ───────────────────────────────────────────────
     st.markdown('<div class="sb-section">🏭 Mezcla de Producción</div>',

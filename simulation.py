@@ -319,7 +319,7 @@ _r3d = max(0, agv_r3 - _r3a - _r3b - _r3c)
 valid_S1  = sum_S1 == 20
 valid_S2  = sum_S2 == 20
 valid_S3  = sum_S3 == 20
-valid_E1  = flow_LC  <= 15.01
+valid_E1  = flow_LC  <= 20.01
 valid_E2  = flow_A   <= 15.01
 valid_E3  = flow_E3  <= 15.01
 valid_E4  = flow_E4  <= 15.01

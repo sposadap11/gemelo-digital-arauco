@@ -60,22 +60,25 @@ st.markdown("""
     background: linear-gradient(180deg, #080d1a 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(6,182,212,0.12) !important;
 }
-[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    position: fixed !important;
-    top: 15px !important;
-    left: 15px !important;
-    z-index: 999999 !important;
+header[data-testid="stHeader"] {
+    background: transparent !important;
+}
+header[data-testid="stHeader"] button {
     background-color: #EA7600 !important;
     color: white !important;
     border-radius: 8px !important;
-    padding: 5px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+    margin-top: 10px !important;
+    margin-left: 10px !important;
 }
-svg[title="Open"] { fill: white !important; }
-#MainMenu, footer, [data-testid="stToolbar"] { visibility: hidden; }
-.stDeployButton { display: none; }
+header[data-testid="stHeader"] button svg {
+    fill: white !important;
+    stroke: white !important;
+}
+footer { visibility: hidden; }
+.stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 
 .kpi-wrap {
     background: rgba(10,14,26,0.85);

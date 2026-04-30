@@ -60,6 +60,10 @@ st.markdown("""
     background: linear-gradient(180deg, #080d1a 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(6,182,212,0.12) !important;
 }
+/* Ocultar el botón de colapsar la barra lateral para que quede fija */
+[data-testid="stSidebarCollapseButton"] {
+    display: none !important;
+}
 header[data-testid="stHeader"] {
     background: transparent !important;
 }

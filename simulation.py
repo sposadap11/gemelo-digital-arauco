@@ -60,12 +60,20 @@ st.markdown("""
     background: linear-gradient(180deg, #080d1a 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(6,182,212,0.12) !important;
 }
-[data-testid="collapsedControl"] {
-    color: #06b6d4 !important;
-    background: rgba(15,23,42,0.8) !important;
-    border-radius: 50% !important;
+[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
     z-index: 999999 !important;
+    background-color: #EA7600 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 5px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
 }
+svg[title="Open"] { fill: white !important; }
 #MainMenu, footer, [data-testid="stToolbar"] { visibility: hidden; }
 .stDeployButton { display: none; }
 

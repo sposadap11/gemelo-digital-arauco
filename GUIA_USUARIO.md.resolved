@@ -1,0 +1,282 @@
+# 🏭 Guía Completa del Simulador AGV — Arauco Digital Twin
+
+> Este documento explica **cada sección, cada número, cada botón y cada alerta** del dashboard.  
+> Si ves algo que no entiendes, la respuesta está aquí.
+
+---
+
+## 🗂️ Índice
+
+1. [¿Qué hace esta aplicación?](#qué-hace)
+2. [Panel Lateral (Sidebar)](#panel-lateral)
+3. [Tarjetas KPI (los 4 números grandes)](#tarjetas-kpi)
+4. [Las 4 Pestañas del Dashboard](#las-4-pestañas)
+5. [Las 7 Restricciones de Arauco](#las-7-restricciones)
+6. [Receta para llegar a SISTEMA ÓPTIMO](#receta-para-llegar-a-sistema-óptimo)
+7. [Glosario](#glosario)
+
+---
+
+## ¿Qué hace?
+
+La simulación resuelve el siguiente problema real de Arauco:
+
+> **Mover 60 lotes/hora de Plywood** (cada lote pesa 2.100 kg y mide 2.6×1.4×1m) desde **3 máquinas de producción** hasta **4 puntos de consumo**, usando robots AGV autónomos, las 24 horas del día, 365 días al año.
+
+El simulador calcula cuántos AGVs se necesitan, valida que se cumplan todas las reglas de la empresa, y muestra en tiempo real cómo fluye la carga.
+
+---
+
+## Panel Lateral
+
+El panel de la izquierda es el **centro de mando**. Todo lo que se cambia aquí se refleja instantáneamente.
+
+---
+
+### Escenarios Rápidos
+
+Cuatro botones que pre-cargan configuraciones predefinidas:
+
+| Escenario | Configuración | Cuándo usarlo |
+|---|---|---|
+| **Óptimo Base** | S1: L=10, C=10 / S2: A=8,B=6,M=6 / S3: A=7,B=7,M=6 | Punto de partida ideal balanceado |
+| **Pico Prod A** | Maximiza producto A en S2 y S3 | Alta demanda de Producto A |
+| **Mix Equilibrado** | Distribución pareja entre productos | Operación estándar sin picos |
+| **Foco B/M** | Prioriza productos B y M | Alta demanda en E3 y E4 |
+
+---
+
+### Mezcla de Producción
+
+Define **cuántos lotes/hora produce cada máquina** de cada tipo de producto.
+
+#### La regla más importante — "20 por máquina"
+
+Cada máquina (S1, S2, S3) produce **exactamente 20 lotes/hora**. La barra de progreso bajo cada máquina muestra el total acumulado:
+
+- 🟢 **Verde** = suma exactamente 20 → correcto
+- 🟡 **Amarillo** = suma distinta de 20 → restricción violada
+
+**Máquina S1 — Salida 1:** Produce solo **L** y **C**. Va únicamente a **Entrada E1**.
+- Ejemplo válido: L=10, C=10 → suma = 20 ✅
+
+**Máquina S2 — Salida 2:** Produce **A**, **B** y **M**. A va a E2; B y M van a E3/E4.
+- Ejemplo válido: A=8, B=6, M=6 → suma = 20 ✅
+
+**Máquina S3 — Salida 3:** Mismo comportamiento que S2.
+- Ejemplo válido: A=7, B=7, M=6 → suma = 20 ✅
+
+---
+
+### Parámetros AGV
+
+| Parámetro | Rango | Default | Significado |
+|---|---|---|---|
+| **Velocidad máxima** | 1.0 – 5.0 km/h | 5.0 km/h | Normativa Arauco limita a 5 km/h. Reducirla = más AGVs necesarios |
+| **Ocupación máxima** | 50% – 70% | 70% | Regla Arauco: máximo 70% de capacidad útil. Reducirlo = más AGVs |
+| **Margen de reserva** | 0% – 20% | 5% | AGVs extra para cubrir fallas. Con 5%, si se necesitan 6, la flota total será 7 |
+
+**Fórmula base que usa el sistema:**
+```
+Tiempo de ciclo = (2 × distancia / velocidad) + (2 × tiempo de carga)
+Lotes/hora por AGV = (60 min / tiempo de ciclo) × % ocupación
+AGVs necesarios = ⌈ demanda / lotes_por_AGV ⌉   (redondeo hacia arriba)
+```
+
+---
+
+### Infraestructura y Tiempos
+
+| Parámetro | Rango | Default | Significado |
+|---|---|---|---|
+| **Ruta corta** | 50 – 250 m | 100 m | Distancia S1/S2/S3 → E1/E2 (dato del plano Arauco) |
+| **Ruta larga** | 80 – 350 m | 150 m | Distancia S2/S3 → E3/E4 (puntos más lejanos) |
+| **Tiempo carga/descarga** | 10 – 120 s | 30 s | Tiempo del rodillo del AGV en cargar o descargar un lote |
+| **Peso por lote** | 500 – 3500 kg | 2.100 kg | Peso real del lote de Plywood (dato del enunciado Arauco) |
+
+---
+
+## Tarjetas KPI
+
+Los 4 cuadros grandes en la parte superior del dashboard.
+
+---
+
+### 1. Flota Mínima 🚚
+
+```
+Número grande = AGVs mínimos calculados matemáticamente
++X reserva    = AGVs adicionales según el margen de reserva configurado
+Total: Y      = Flota operativa total recomendada
+```
+
+Se calcula por ruta y se suman:
+```
+AGVs Ruta 1 = ⌈ lotes_E1 / capacidad_AGV_100m ⌉
+AGVs Ruta 2 = ⌈ lotes_E2 / capacidad_AGV_100m ⌉
+AGVs Ruta 3 = ⌈ lotes_E3_E4 / capacidad_AGV_150m ⌉
+Total       = R1 + R2 + R3
+```
+
+---
+
+### 2. Throughput 📦
+
+```
+Número grande = lotes/hora totales que se mueven en el sistema
+Subtexto      = toneladas/hora equivalentes (lotes × peso_por_lote)
+```
+
+Con la configuración óptima (60 lotes/h × 2.100 kg) = **126 toneladas/hora** moviéndose continuamente.
+
+---
+
+### 3. Utilización 📊
+
+```
+Número grande = % promedio de uso de los AGVs
+R1/R2/R3      = utilización individual de cada ruta
+```
+
+| Color | Rango | Significado |
+|---|---|---|
+| 🟢 Verde | < 80% | Flota con holgura operativa. Estado saludable |
+| 🟡 Amarillo | 80% – 94% | Flota ajustada, poco margen para imprevistos |
+| 🔴 Rojo | ≥ 95% | Flota al límite. Riesgo de cuello de botella |
+
+---
+
+### 4. Estado — AJUSTAR vs SISTEMA ÓPTIMO
+
+Este KPI es el **semáforo general**. Revisa 7 restricciones simultáneamente.
+
+| Estado | Color | Significado |
+|---|---|---|
+| **SISTEMA ÓPTIMO** | 🟢 Verde | Las 7 restricciones se cumplen. Configuración válida |
+| **AJUSTAR** | 🟡 Amarillo | Al menos 1 restricción falla. El sistema no cumple las normas Arauco |
+
+El número **"X/7 restricciones ✓"** dice cuántas se están cumpliendo. Si sale 6/7, hay exactamente una que está fallando.
+
+---
+
+## Las 4 Pestañas
+
+---
+
+### Tab 1 — Simulación Animada 🎬
+
+Visualización Canvas en tiempo real del circuito logístico.
+
+| Elemento visual | Qué representa |
+|---|---|
+| Círculos izquierda (S1, S2, S3) | Los 3 puntos de producción |
+| Círculos derecha (E1, E2, E3, E4) | Las 4 entradas de consumo |
+| Cuadraditos móviles | Los robots AGV |
+| Curvas entre nodos | Las rutas de transporte |
+
+**Color del AGV según su estado:**
+
+| Color | Estado |
+|---|---|
+| 🟠 Naranja brillante | **Cargado** — viajando de producción a consumo con lote encima |
+| 🔵 Cian | **Vacío** — retornando a producción para buscar otro lote |
+| 🟢 Verde | **Transfiriendo** — en proceso de carga o descarga (parado en un nodo) |
+
+---
+
+### Tab 2 — Análisis de Rutas 📊
+
+Detalle técnico de las 3 rutas:
+
+| Ruta | Origen | Destino | Producto | Distancia |
+|---|---|---|---|---|
+| **R1** | S1 | E1 | L y C | 100 m |
+| **R2** | S2 + S3 | E2 | A | 100 m |
+| **R3** | S2 + S3 | E3 + E4 | B y M | 150 m |
+
+Para cada ruta muestra: flujo actual, AGVs asignados, utilización y tiempo de ciclo.
+
+---
+
+### Tab 3 — Explicación Simple 🧠
+
+Versión no técnica del análisis. Usa lenguaje natural. Útil para presentaciones a directivos o evaluadores no técnicos.
+
+---
+
+### Tab 4 — Validación ✅
+
+Checklist visual de las 7 restricciones con ✅ o ❌ para cada una. Si alguna falla, aquí se ve **exactamente cuál es** y el valor actual vs. el máximo permitido.
+
+---
+
+## Las 7 Restricciones
+
+Estas son las reglas que determinan AJUSTAR vs SISTEMA ÓPTIMO:
+
+| # | Restricción | Regla exacta | Cómo cumplirla |
+|---|---|---|---|
+| 1 | S1 produce exactamente 20 lotes/h | L + C = 20 | Ajustar L y C hasta que sumen 20 |
+| 2 | S2 produce exactamente 20 lotes/h | A + B + M = 20 | Ajustar A, B, M de Salida 2 |
+| 3 | S3 produce exactamente 20 lotes/h | A + B + M = 20 | Ajustar A, B, M de Salida 3 |
+| 4 | E1 no supera 15 lotes/h | flujo_LC ≤ 15 | Reducir L + C en S1 (máx 15 combinados) |
+| 5 | E2 no supera 15 lotes/h | flujo_A ≤ 15 | Reducir A en S2 + A en S3 (máx 15 combinados) |
+| 6 | E3 no supera 15 lotes/h | mitad_BM ≤ 15 | Reducir B+M totales de ambas salidas |
+| 7 | E4 no supera 15 lotes/h | otra_mitad_BM ≤ 15 | Mismo control que E3 |
+
+> **¿Por qué 15 y no 20?** Cada máquina de consumo procesa máximo **15 lotes/hora** (dato del enunciado Arauco). La producción (20/h × 3 máquinas = 60/h total) se distribuye entre 4 puntos de consumo (15/h × 4 = 60/h total). El balance es exacto a nivel sistema pero no a nivel máquina individual.
+
+---
+
+## Receta para llegar a SISTEMA ÓPTIMO
+
+Si ves **AJUSTAR (6/7)** o menos, sigue estos pasos:
+
+**Paso 1** → Haz clic en **"Óptimo Base"** en Escenarios Rápidos.
+
+**Paso 2** → Verifica que cada máquina sume 20:
+```
+S1: L=10 + C=10  = 20 ✅
+S2: A=8 + B=6 + M=6 = 20 ✅
+S3: A=7 + B=7 + M=6 = 20 ✅
+```
+
+**Paso 3** → Verifica flujos hacia las entradas:
+```
+E1 recibe: S1_L + S1_C = 10 + 10 = 20  ← supera 15
+E2 recibe: S2_A + S3_A =  8 +  7 = 15  ✅ exacto
+E3 recibe: mitad de (B+M totales) ≈ 13  ✅
+E4 recibe: otra mitad            ≈ 13  ✅
+```
+
+> **Tensión real del problema:** S1 produce 20/h pero E1 solo consume 15/h.  
+> Esto es una característica del enunciado Arauco. Para resolverla se necesita un **buffer de almacenamiento temporal** en E1, o **reducir la cadencia de S1 a 15 lotes/h** y aceptar que la restricción 1 (S1=20) sea un límite teórico, no operativo.  
+> **Para el hackathon**, lo valioso es que el sistema detecte y visualice esta tensión claramente, y que la solución propuesta (ej: buffer, turno reducido, etc.) esté justificada.
+
+**Paso 4** → Deja los parámetros AGV al máximo:
+- Velocidad: **5.0 km/h**
+- Ocupación: **70%**
+
+Esto minimiza el número de AGVs y representa el escenario más eficiente.
+
+**Paso 5** → Ve a la **Tab Validación** para ver el detalle exacto de cada restricción.
+
+---
+
+## Glosario
+
+| Término | Significado |
+|---|---|
+| **AGV** | Automated Guided Vehicle — robot que transporta carga autónomamente siguiendo una ruta fija |
+| **AMR** | Autonomous Mobile Robot — versión avanzada del AGV con navegación libre sin guías físicas |
+| **Throughput** | Volumen total de producción que fluye por el sistema (lotes/hora) |
+| **Utilización** | Porcentaje del tiempo que un AGV está en tarea útil vs. en espera o vacío |
+| **MILP** | Mixed-Integer Linear Programming — optimización matemática que encuentra la cantidad exacta mínima de AGVs |
+| **Ciclo de trabajo** | Tiempo completo de un AGV: ir cargado + descargar + volver vacío + cargar |
+| **Lote** | Una unidad de Plywood: 2.6×1.4×1m, peso 2.100 kg |
+| **S1 / S2 / S3** | Salidas de producción — donde los AGVs recogen los lotes |
+| **E1 / E2 / E3 / E4** | Entradas de consumo — donde los AGVs entregan los lotes |
+| **Ruta corta** | 100 m — S1→E1 y S2/S3→E2 |
+| **Ruta larga** | 150 m — S2/S3→E3 y S2/S3→E4 |
+| **Restricción** | Regla operativa de Arauco que el sistema debe respetar |
+| **Margen de reserva** | AGVs extra (%) para cubrir mantenimiento, fallas o demanda pico |

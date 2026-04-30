@@ -1,0 +1,26 @@
+PITCH DE ALTO IMPACTO: DIGITAL TWIN AGV ARAUCO
+==================================================
+Duración estimada: 2 min 40 segundos
+Enfoque: Neuroventas (Dolor -> Alivio -> Prueba Lógica -> Acción)
+
+[0:00 - 0:35] EL GANCHO (Cerebro Reptiliano: Supervivencia, Seguridad y Costos)
+------------------------------------------------------------------------------
+"Cada hora en nuestra planta de Plywood es una coreografía de toneladas. Pero seamos honestos: hoy, esa coreografía es peligrosa. Montacargas cruzándose, giros forzados de último minuto, frenazos para evitar accidentes y operadores lidiando con la presión de no detener la cadena. El riesgo no solo es humano, también es financiero: micro-paradas que desangran el throughput diario. Ese es el dolor invisible de nuestra logística. Por eso no venimos a proponerles comprar más fierros. Venimos a mostrarles cómo tomar el control total de la planta antes de mover una sola máquina."
+
+[0:35 - 1:15] LA VISIÓN (Cerebro Límbico: Emoción y Alivio)
+----------------------------------------------------------
+"Quiero que imaginen algo diferente. Un flujo continuo, donde 60 lotes por hora —126 toneladas de madera— se desplazan en absoluto silencio y con precisión quirúrgica. Sin colisiones, sin incertidumbre, operando las 24 horas, los 7 días de la semana. Esto es lo que hace nuestro Gemelo Digital. No es una simple animación bonita; es el espejo exacto de nuestra operación física. Es ver el futuro de Arauco en una pantalla para tomar decisiones estratégicas sin arriesgar un solo dólar en el mundo real."
+
+[1:15 - 2:00] LA PRUEBA (Cerebro Neocórtex: Lógica, Matemáticas y Datos Duros)
+-----------------------------------------------------------------------------
+"¿Cómo lo logramos? Con ciencia real. Detrás de la interfaz premium que han visto, corre un motor matemático MILP (Programación Lineal Entera Mixta). El sistema no adivina; calcula el tiempo de ciclo exacto para trayectos de 100 y 150 metros, considerando cinemática real, aceleraciones y tiempos de carga por rodillos. Nuestro algoritmo resolvió el tradeoff crítico: determinó la flota mínima exacta para garantizar el flujo continuo sin exceder el 70% de ocupación por unidad. El sistema nos muestra dónde están los cuellos de botella antes de que ocurran y valida en tiempo real las 7 restricciones de planta."
+
+[2:00 - 2:50] EL CIERRE Y LLAMADO A LA ACCIÓN (El Cierre de Ventas)
+-----------------------------------------------------------------
+"Señores, los datos demuestran que la automatización no es un gasto, es la inversión con el retorno más transparente del sector. Con este Digital Twin reducimos la incertidumbre a cero. Pasamos de 'creer que funcionará' a 'saber matemáticamente que funciona'. Esto no es el futuro; es el estándar que Arauco necesita hoy para mantener su liderazgo global con seguridad y máxima eficiencia. La tecnología está lista, los números están validados. La pregunta no es si automatizaremos la logística, sino si seremos nosotros quienes lideremos esta revolución. Demos el primer paso hacia la planta del mañana. Muchas gracias."
+
+------------------------------------------------------------------------------
+NOTAS PARA EL ORADOR (Neuro-tips):
+1. Tono de voz: Firme pero pausado al inicio (dolor), enérgico y optimista en la visión, y analítico en la prueba.
+2. Pausas: Haz un silencio de 2 segundos después de "antes de mover una sola máquina".
+3. Contacto visual: Barre a toda la mesa al mencionar "riesgo humano y financiero".

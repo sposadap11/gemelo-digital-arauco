@@ -264,8 +264,8 @@ flow_A     = flow_A_S2 + flow_A_S3
 flow_BM_S2 = prod["S2"]["B"] + prod["S2"]["M"]
 flow_BM_S3 = prod["S3"]["B"] + prod["S3"]["M"]
 flow_BM    = flow_BM_S2 + flow_BM_S3
-flow_E3    = min(15.0, flow_BM / 2)
-flow_E4    = flow_BM - flow_E3
+flow_E3    = flow_BM / 2
+flow_E4    = flow_BM / 2
 total_prod = flow_LC + flow_A + flow_BM
 
 sum_S1 = prod["S1"]["L"] + prod["S1"]["C"]
@@ -628,7 +628,8 @@ function drawCons(x,y,col,lbl,sub,flow){
   ctx.fillStyle=col; ctx.font='bold 13px monospace';
   ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(lbl,x,y-6);
   ctx.fillStyle='#cbd5e1'; ctx.font='bold 9px monospace';
-  ctx.fillText(flow.toFixed(0)+'/15',x,y+7);
+  let f_str = (flow % 1 === 0) ? flow.toString() : flow.toFixed(1);
+  ctx.fillText(f_str+'/15',x,y+7);
   ctx.fillStyle='#64748b'; ctx.font='8px sans-serif'; ctx.fillText(sub,x,y+H2/2+13);
   ctx.fillStyle=col+'55'; ctx.font='bold 7px sans-serif'; ctx.fillText('CONSUMO',x,y-H2/2-9);
 }

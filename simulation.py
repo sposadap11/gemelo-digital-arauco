@@ -72,91 +72,12 @@ st.markdown("""
     }
 }
 
-/* ── MÓVIL: permitir colapso, botón premium siempre accesible ──────────── */
-@media (max-width: 991px) {
-    /* Botón para ABRIR: Estilo "Pestaña" flotante premium */
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="collapsedControl"] {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        top: 20px !important;
-        left: 0px !important;
-        z-index: 1000001 !important;
-        background: #EA7600 !important;
-        border-radius: 0 12px 12px 0 !important;
-        padding: 10px 14px 10px 8px !important;
-        box-shadow: 4px 0 15px rgba(234,118,0,0.4) !important;
-        transition: all 0.3s ease;
-    }
-    [data-testid="stSidebarCollapsedControl"]:hover,
-    [data-testid="collapsedControl"]:hover {
-        padding-right: 20px !important;
-        background: #FF8C00 !important;
-    }
-    [data-testid="stSidebarCollapsedControl"] svg,
-    [data-testid="collapsedControl"] svg {
-        fill: white !important;
-        stroke: white !important;
-        width: 24px !important;
-        height: 24px !important;
-    }
-    
-    /* Botón para CERRAR dentro de la barra lateral */
-    [data-testid="stSidebarCollapseButton"] {
-        display: flex !important;
-        visibility: visible !important;
-        margin-top: 10px !important;
-        background-color: rgba(234,118,0,0.1) !important;
-        border-radius: 10px !important;
-        border: 1px solid rgba(234,118,0,0.3) !important;
-        transition: all 0.2s ease;
-    }
-    [data-testid="stSidebarCollapseButton"]:hover {
-        background-color: rgba(234,118,0,0.2) !important;
-    }
-    [data-testid="stSidebarCollapseButton"] svg {
-        fill: #EA7600 !important;
-        stroke: #EA7600 !important;
-    }
-
-    /* Ajuste de ancho de barra en móvil para no cubrir todo */
-    [data-testid="stSidebar"] {
-        width: 85vw !important;
-        max-width: 320px !important;
-        box-shadow: 10px 0 30px rgba(0,0,0,0.5) !important;
-    }
-    
-    /* El botón de hamburguesa nativo de Streamlit en móviles está en el stHeader */
-    header[data-testid="stHeader"] button {
-        background-color: #EA7600 !important;
-        color: white !important;
-        border-radius: 8px !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
-        margin-top: 10px !important;
-        margin-left: 10px !important;
-        display: flex !important;
-        z-index: 9999999 !important;
-    }
-    header[data-testid="stHeader"] button svg {
-        fill: white !important;
-        stroke: white !important;
-    }
-}
-
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    pointer-events: none; /* Allows clicking through empty header areas */
-}
-header[data-testid="stHeader"] * {
-    pointer-events: auto; /* Buttons inside header remain clickable */
-}
+/* ── NATIVE MOBILE BEHAVIOR ────────────── */
+/* Let Streamlit handle mobile sidebar natively to prevent bugs */
+/* We only hide the deploy button and footer */
 
 footer { visibility: hidden; }
-.stDeployButton, [data-testid="stToolbar"] { display: none !important; }
+.stDeployButton { display: none !important; }
 
 .kpi-wrap {
     background: rgba(10,14,26,0.85);

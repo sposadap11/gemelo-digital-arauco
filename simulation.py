@@ -60,26 +60,60 @@ st.markdown("""
     background: linear-gradient(180deg, #080d1a 0%, #0f172a 100%) !important;
     border-right: 1px solid rgba(6,182,212,0.12) !important;
 }
-/* Ocultar el botón de colapsar la barra lateral para que quede fija */
-[data-testid="stSidebarCollapseButton"] {
-    display: none !important;
+
+/* ── DESKTOP: sidebar siempre visible, sin botón de colapso ────────────── */
+@media (min-width: 768px) {
+    [data-testid="stSidebarCollapseButton"] {
+        display: none !important;
+    }
+    [data-testid="stSidebar"] {
+        min-width: 230px !important;
+    }
 }
+
+/* ── MÓVIL: permitir colapso, botón naranja visible y flotante ──────────── */
+@media (max-width: 767px) {
+    /* Botón para ABRIR la barra cuando está cerrada */
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="collapsedControl"] {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 12px !important;
+        z-index: 999999 !important;
+        background-color: #EA7600 !important;
+        border-radius: 10px !important;
+        padding: 8px !important;
+        box-shadow: 0 4px 16px rgba(234,118,0,0.5) !important;
+    }
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="collapsedControl"] svg {
+        fill: white !important;
+        stroke: white !important;
+    }
+    /* Botón para CERRAR dentro de la barra: también visible y naranja */
+    [data-testid="stSidebarCollapseButton"] {
+        display: flex !important;
+        visibility: visible !important;
+        background-color: rgba(234,118,0,0.15) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(234,118,0,0.4) !important;
+    }
+    [data-testid="stSidebarCollapseButton"] svg {
+        fill: #EA7600 !important;
+        stroke: #EA7600 !important;
+    }
+    /* Que el área principal no quede aplastada */
+    [data-testid="stSidebar"] {
+        width: 85vw !important;
+        max-width: 320px !important;
+    }
+}
+
 header[data-testid="stHeader"] {
     background: transparent !important;
-}
-header[data-testid="stHeader"] button {
-    background-color: #EA7600 !important;
-    color: white !important;
-    border-radius: 8px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
-    margin-top: 10px !important;
-    margin-left: 10px !important;
-}
-header[data-testid="stHeader"] button svg {
-    fill: white !important;
-    stroke: white !important;
 }
 footer { visibility: hidden; }
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }

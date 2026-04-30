@@ -127,11 +127,34 @@ st.markdown("""
         max-width: 320px !important;
         box-shadow: 10px 0 30px rgba(0,0,0,0.5) !important;
     }
+    
+    /* El botón de hamburguesa nativo de Streamlit en móviles está en el stHeader */
+    header[data-testid="stHeader"] button {
+        background-color: #EA7600 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+        margin-top: 10px !important;
+        margin-left: 10px !important;
+        display: flex !important;
+        z-index: 9999999 !important;
+    }
+    header[data-testid="stHeader"] button svg {
+        fill: white !important;
+        stroke: white !important;
+    }
 }
 
 header[data-testid="stHeader"] {
     background: transparent !important;
+    pointer-events: none; /* Allows clicking through empty header areas */
 }
+header[data-testid="stHeader"] * {
+    pointer-events: auto; /* Buttons inside header remain clickable */
+}
+
 footer { visibility: hidden; }
 .stDeployButton, [data-testid="stToolbar"] { display: none !important; }
 

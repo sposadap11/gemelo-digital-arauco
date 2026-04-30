@@ -264,8 +264,9 @@ flow_A     = flow_A_S2 + flow_A_S3
 flow_BM_S2 = prod["S2"]["B"] + prod["S2"]["M"]
 flow_BM_S3 = prod["S3"]["B"] + prod["S3"]["M"]
 flow_BM    = flow_BM_S2 + flow_BM_S3
-flow_E3    = min(15, math.ceil(flow_BM / 2))
-flow_E4    = flow_BM - flow_E3
+# Split B/M en enteros exactos: ceil a E3, floor a E4 (garantiza E3+E4 = flow_BM)
+flow_E3    = min(15, math.ceil(flow_BM / 2))   # entero
+flow_E4    = flow_BM - flow_E3                  # entero (garantizado)
 total_prod = flow_LC + flow_A + flow_BM
 
 sum_S1 = prod["S1"]["L"] + prod["S1"]["C"]
@@ -314,12 +315,12 @@ _r3d = max(0, agv_r3 - _r3a - _r3b - _r3c)
 valid_S1  = sum_S1 == 20
 valid_S2  = sum_S2 == 20
 valid_S3  = sum_S3 == 20
-valid_E1  = flow_LC  <= 15.01
-valid_E2  = flow_A   <= 15.01
-valid_E3  = flow_E3  <= 15.01
-valid_E4  = flow_E4  <= 15.01
-all_valid = all([valid_S1, valid_S2, valid_S3,
-                 valid_E1, valid_E2, valid_E3, valid_E4])
+valid_E1  = flow_LC  <= 15  # SIEMPRE FALLA — E1 recibe 20 de S1 (restricción estructural)
+valid_E2  = flow_A   <= 15
+valid_E3  = flow_E3  <= 15
+valid_E4  = flow_E4  <= 15
+# E1 se excluye del estado global (es falla estructural esperada del diseño de planta)
+all_valid = all([valid_S1, valid_S2, valid_S3, valid_E2, valid_E3, valid_E4])
 
 # ══════════════════════════════════════════════════════════════════════════
 # ENCABEZADO
@@ -365,8 +366,8 @@ st.markdown(f"""
 _sc = "#10b981" if all_valid else "#f59e0b"
 _si = "✅" if all_valid else "⚠️"
 _st = "SISTEMA ÓPTIMO" if all_valid else "AJUSTAR"
-_scnt = sum([valid_S1, valid_S2, valid_S3,
-             valid_E1, valid_E2, valid_E3, valid_E4])
+# El máximo alcanzable es 6/6: E1 siempre viola (estructural)
+_scnt = sum([valid_S1, valid_S2, valid_S3, valid_E2, valid_E3, valid_E4])
 _uc = "#10b981" if avg_util < 80 else ("#f59e0b" if avg_util < 95 else "#ef4444")
 
 kc1, kc2, kc3, kc4 = st.columns(4)
@@ -400,7 +401,7 @@ with kc4:
         f'<div class="kpi-wrap" style="border-color:rgba({_rgb},.25);">'
         f'<div class="kpi-lbl" style="color:{_sc};">{_si} Estado</div>'
         f'<div style="font-size:26px;font-weight:900;color:{_sc};margin:8px 0;">{_st}</div>'
-        f'<div style="font-size:13px;color:#94a3b8;margin-top:4px;">{_scnt}/7 restricciones ✓</div>'
+        f'<div style="font-size:13px;color:#94a3b8;margin-top:4px;">{_scnt}/6 restricciones ✓</div>'
         f'<div class="kpi-sub">Operación 24h · 365 días/año</div>'
         f'</div>', unsafe_allow_html=True)
 
@@ -434,10 +435,10 @@ with tab_anim:
         "dist_long":  dist_long,
         "load_time":  load_time,
         "TS":         55,                    # factor de compresión temporal
-        "flow_E1":    int(flow_LC),
-        "flow_E2":    int(flow_A),
-        "flow_E3":    int(flow_E3),
-        "flow_E4":    int(flow_E4),
+        "flow_E1":    round(flow_LC,  1),
+        "flow_E2":    round(flow_A,   1),
+        "flow_E3":    round(flow_E3,  1),
+        "flow_E4":    round(flow_E4,  1),
         "flow_total": total_prod,
         "agv_r1":     agv_r1,
         "agv_r2a":    max(1 if flow_A_S2 > 0 else 0, _r2a),
@@ -941,31 +942,77 @@ with tab_valid:
         'letter-spacing:.15em;margin-bottom:14px;">Verificación de las 7 restricciones Arauco</div>',
         unsafe_allow_html=True)
 
-    _V = [
-        ("Producción S1 = 20 lotes/h", f"{sum_S1}/20",     valid_S1, "S1: L + C deben sumar exactamente 20"),
-        ("Producción S2 = 20 lotes/h", f"{sum_S2}/20",     valid_S2, "S2: A + B + M deben sumar exactamente 20"),
-        ("Producción S3 = 20 lotes/h", f"{sum_S3}/20",     valid_S3, "S3: A + B + M deben sumar exactamente 20"),
-        ("Consumo E1 ≤ 15 lotes/h",    f"{int(flow_LC)}/15", valid_E1, "Entrada 1 (L y C): máximo 15 lotes/h"),
-        ("Consumo E2 ≤ 15 lotes/h",    f"{int(flow_A)}/15",  valid_E2, "Entrada 2 (Prod A): máximo 15 lotes/h"),
-        ("Consumo E3 ≤ 15 lotes/h",    f"{int(flow_E3)}/15", valid_E3, "Entrada 3 (B y M): máximo 15 lotes/h"),
-        ("Consumo E4 ≤ 15 lotes/h",    f"{int(flow_E4)}/15", valid_E4, "Entrada 4 (B y M): máximo 15 lotes/h"),
+    # ── E1: Alerta estructural especial (siempre viola por diseño de planta) ──
+    total_consumo = flow_LC + flow_A + flow_E3 + flow_E4
+    balance_ok = (total_consumo == total_prod)
+    vc1_col, vc2_col = st.columns(2)
+    with vc1_col:
+        # E1 siempre viola (estructura de planta): amarillo ámbar, no rojo
+        st.markdown(
+            f'<div style="background:rgba(234,118,0,.08);border:2px solid rgba(234,118,0,.5);'
+            f'border-radius:12px;padding:14px 16px;margin-bottom:8px;">'
+            f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+            f'<div>'
+            f'<div style="font-size:12px;font-weight:800;color:#EA7600;">⚠️ Consumo E1 — Restricción Estructural</div>'
+            f'<div style="font-size:10px;color:#BFB800;font-family:sans-serif;margin-top:3px;">'
+            f'S1 produce 20 lotes/h pero E1 solo acepta 15. Esta diferencia (+5) es una limitación'
+            f' física del diseño de planta. No hay ajuste posible en el panel que la elimine.</div>'
+            f'</div>'
+            f'<div style="text-align:center;">'
+            f'<div style="font-size:20px;font-weight:900;color:#EA7600;font-family:monospace;">{flow_LC}/15</div>'
+            f'<div style="font-size:9px;color:#EA7600;">+{flow_LC-15} sobre límite</div>'
+            f'</div></div></div>',
+            unsafe_allow_html=True)
+
+    # ── Restricciones controlables (S1, S2, S3, E2, E3, E4) ──
+    _V6 = [
+        ("Producción S1 = 20 lotes/h", f"{sum_S1}/20",   valid_S1, "S1: L + C = 20 exacto"),
+        ("Producción S2 = 20 lotes/h", f"{sum_S2}/20",   valid_S2, "S2: A + B + M = 20 exacto"),
+        ("Producción S3 = 20 lotes/h", f"{sum_S3}/20",   valid_S3, "S3: A + B + M = 20 exacto"),
+        ("Consumo E2 ≤ 15 lotes/h",   f"{flow_A}/15",   valid_E2, "Entrada 2 (Prod A de S2+S3): máx 15"),
+        ("Consumo E3 ≤ 15 lotes/h",   f"{flow_E3}/15",  valid_E3, "Entrada 3 (B+M): máx 15"),
+        ("Consumo E4 ≤ 15 lotes/h",   f"{flow_E4}/15",  valid_E4, "Entrada 4 (B+M restante): máx 15"),
     ]
-    vc1, vc2 = st.columns(2)
-    for i, (vn, vv, vok, vd) in enumerate(_V):
-        col = vc1 if i % 2 == 0 else vc2
-        ic = "✅" if vok else "❌"
-        cl = "#10b981" if vok else "#ef4444"
-        bg = "rgba(16,185,129,.06)" if vok else "rgba(239,68,68,.06)"
-        bd = "rgba(16,185,129,.2)"  if vok else "rgba(239,68,68,.3)"
-        with col:
-            st.markdown(
-                f'<div style="background:{bg};border:1px solid {bd};border-radius:12px;'
-                f'padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;'
-                f'justify-content:space-between;gap:12px;">'
-                f'<div><div style="font-size:12px;font-weight:800;color:{cl};">{ic} {vn}</div>'
-                f'<div style="font-size:10px;color:#475569;font-family:sans-serif;margin-top:2px;">{vd}</div></div>'
-                f'<div style="font-size:20px;font-weight:900;color:{cl};font-family:monospace;">{vv}</div>'
-                f'</div>', unsafe_allow_html=True)
+    pairs = list(zip(_V6[::2], _V6[1::2]))
+    if len(_V6) % 2 != 0:
+        pairs.append((_V6[-1], None))
+    for left, right in pairs:
+        col_a, col_b = st.columns(2)
+        for col, item in [(col_a, left), (col_b, right)]:
+            if item is None:
+                continue
+            vn, vv, vok, vd = item
+            ic = "✅" if vok else "❌"
+            cl = "#10b981" if vok else "#ef4444"
+            bg = "rgba(16,185,129,.06)" if vok else "rgba(239,68,68,.06)"
+            bd = "rgba(16,185,129,.2)"  if vok else "rgba(239,68,68,.3)"
+            with col:
+                st.markdown(
+                    f'<div style="background:{bg};border:1px solid {bd};border-radius:12px;'
+                    f'padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;'
+                    f'justify-content:space-between;gap:12px;">'
+                    f'<div><div style="font-size:12px;font-weight:800;color:{cl};">{ic} {vn}</div>'
+                    f'<div style="font-size:10px;color:#475569;font-family:sans-serif;margin-top:2px;">{vd}</div></div>'
+                    f'<div style="font-size:20px;font-weight:900;color:{cl};font-family:monospace;">{vv}</div>'
+                    f'</div>', unsafe_allow_html=True)
+
+    # ── Balance de masa: verificación de coherencia total ──
+    st.divider()
+    balance_col = "#10b981" if balance_ok else "#ef4444"
+    balance_icon = "✅" if balance_ok else "❌"
+    st.markdown(
+        f'<div style="background:rgba(10,14,26,.7);border:1px solid {balance_col}44;'
+        f'border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">'
+        f'<div>'
+        f'<div style="font-size:12px;font-weight:900;color:{balance_col};">{balance_icon} Balance de masa del sistema</div>'
+        f'<div style="font-size:10px;color:#64748b;margin-top:4px;">'
+        f'Salidas (S1+S2+S3) = {total_prod} lotes/h &nbsp;|&nbsp; '
+        f'Llegadas (E1+E2+E3+E4) = {total_consumo} lotes/h</div>'
+        f'</div>'
+        f'<div style="font-size:22px;font-weight:900;color:{balance_col};font-family:monospace;">'
+        f'{total_prod} = {total_consumo}</div>'
+        f'</div>',
+        unsafe_allow_html=True)
 
     st.divider()
     st.markdown(

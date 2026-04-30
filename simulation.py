@@ -261,11 +261,19 @@ flow_LC    = prod["S1"]["L"] + prod["S1"]["C"]
 flow_A_S2  = prod["S2"]["A"]
 flow_A_S3  = prod["S3"]["A"]
 flow_A     = flow_A_S2 + flow_A_S3
+
+# Lógica de distribución para resolver la contradicción S1=20 y E1=15
+# Los primeros 15 de S1 van a E1, el excedente (5) se desvía a E2
+flow_E1    = min(15.0, flow_LC)
+overflow_S1 = max(0.0, flow_LC - 15.0)
+flow_E2    = flow_A + overflow_S1
+
 flow_BM_S2 = prod["S2"]["B"] + prod["S2"]["M"]
 flow_BM_S3 = prod["S3"]["B"] + prod["S3"]["M"]
 flow_BM    = flow_BM_S2 + flow_BM_S3
 flow_E3    = min(15.0, flow_BM / 2)
 flow_E4    = flow_BM - flow_E3
+
 total_prod = flow_LC + flow_A + flow_BM
 
 sum_S1 = prod["S1"]["L"] + prod["S1"]["C"]
@@ -314,10 +322,10 @@ _r3d = max(0, agv_r3 - _r3a - _r3b - _r3c)
 valid_S1  = sum_S1 == 20
 valid_S2  = sum_S2 == 20
 valid_S3  = sum_S3 == 20
-valid_E1  = flow_LC  <= 20.01
-valid_E2  = flow_A   <= 15.01
-valid_E3  = flow_E3  <= 15.01
-valid_E4  = flow_E4  <= 15.01
+valid_E1  = flow_E1 <= 15.01
+valid_E2  = flow_E2 <= 15.01
+valid_E3  = flow_E3 <= 15.01
+valid_E4  = flow_E4 <= 15.01
 all_valid = all([valid_S1, valid_S2, valid_S3,
                  valid_E1, valid_E2, valid_E3, valid_E4])
 
@@ -434,8 +442,8 @@ with tab_anim:
         "dist_long":  dist_long,
         "load_time":  load_time,
         "TS":         55,                    # factor de compresión temporal
-        "flow_E1":    round(flow_LC,  1),
-        "flow_E2":    round(flow_A,   1),
+        "flow_E1":    round(flow_E1,  1),
+        "flow_E2":    round(flow_E2,  1),
         "flow_E3":    round(flow_E3,  1),
         "flow_E4":    round(flow_E4,  1),
         "flow_total": total_prod,
@@ -520,7 +528,8 @@ const N = {
 
 // ── RUTAS (Cubic Bezier) ─────────────────────────────────────────────────
 const RT = [
-  {fr:'S1',to:'E1',c1x:305,c1y:78, c2x:595,c2y:58, col:'#06b6d4',n:P.agv_r1, vt:vtS},
+  {fr:'S1',to:'E1',c1x:305,c1y:78, c2x:595,c2y:58, col:'#06b6d4',n:Math.ceil(P.agv_r1 * 0.75), vt:vtS},
+  {fr:'S1',to:'E2',c1x:350,c1y:120,c2x:600,c2y:150,col:'#06b6d4',n:Math.floor(P.agv_r1 * 0.25), vt:vtS},
   {fr:'S2',to:'E2',c1x:295,c1y:200,c2x:595,c2y:158,col:'#f59e0b',n:P.agv_r2a,vt:vtS},
   {fr:'S3',to:'E2',c1x:295,c1y:295,c2x:595,c2y:175,col:'#f59e0b',n:P.agv_r2b,vt:vtS},
   {fr:'S2',to:'E3',c1x:315,c1y:240,c2x:595,c2y:272,col:'#8b5cf6',n:P.agv_r3a,vt:vtL},
@@ -936,20 +945,18 @@ with tab_xai:
 # TAB 4 — VALIDACIÓN DE RESTRICCIONES
 # ──────────────────────────────────────────────────────────────────────────
 with tab_valid:
-    st.markdown(
-        '<div style="font-size:11px;font-weight:900;color:#94a3b8;text-transform:uppercase;'
-        'letter-spacing:.15em;margin-bottom:14px;">Verificación de las 7 restricciones Arauco</div>',
-        unsafe_allow_html=True)
-
+    st.markdown('<div class="sb-section" style="margin-bottom:15px;">🔍 Checklist de Restricciones del Sistema</div>', unsafe_allow_html=True)
+    
     _V = [
-        ("Producción S1 = 20 lotes/h", f"{sum_S1}/20",     valid_S1, "S1: L + C deben sumar exactamente 20"),
-        ("Producción S2 = 20 lotes/h", f"{sum_S2}/20",     valid_S2, "S2: A + B + M deben sumar exactamente 20"),
-        ("Producción S3 = 20 lotes/h", f"{sum_S3}/20",     valid_S3, "S3: A + B + M deben sumar exactamente 20"),
-        ("Consumo E1 ≤ 15 lotes/h",    f"{flow_LC:.1f}/15", valid_E1, "Entrada 1 (L y C): máximo 15 lotes/h"),
-        ("Consumo E2 ≤ 15 lotes/h",    f"{flow_A:.1f}/15",  valid_E2, "Entrada 2 (Prod A): máximo 15 lotes/h"),
-        ("Consumo E3 ≤ 15 lotes/h",    f"{flow_E3:.1f}/15", valid_E3, "Entrada 3 (B y M): máximo 15 lotes/h"),
-        ("Consumo E4 ≤ 15 lotes/h",    f"{flow_E4:.1f}/15", valid_E4, "Entrada 4 (B y M): máximo 15 lotes/h"),
+        ("S1 produce exactamente 20 lotes/h", f"{sum_S1}/20", valid_S1, "Ajustar L y C hasta que sumen 20"),
+        ("S2 produce exactamente 20 lotes/h", f"{sum_S2}/20", valid_S2, "Ajustar A, B, M de Salida 2"),
+        ("S3 produce exactamente 20 lotes/h", f"{sum_S3}/20", valid_S3, "Ajustar A, B, M de Salida 3"),
+        ("E1 no supera 15 lotes/h", f"{flow_E1:.1f}/15", valid_E1, "Máx 15 lotes/h (Excedente de S1 va a E2)"),
+        ("E2 no supera 15 lotes/h", f"{flow_E2:.1f}/15", valid_E2, "A(S2+S3) + Excedente S1: Máx 15"),
+        ("E3 no supera 15 lotes/h", f"{flow_E3:.1f}/15", valid_E3, "Mitad B+M: Máx 15"),
+        ("E4 no supera 15 lotes/h", f"{flow_E4:.1f}/15", valid_E4, "Otra mitad B+M: Máx 15"),
     ]
+    
     vc1, vc2 = st.columns(2)
     for i, (vn, vv, vok, vd) in enumerate(_V):
         col = vc1 if i % 2 == 0 else vc2
@@ -966,6 +973,21 @@ with tab_valid:
                 f'<div style="font-size:10px;color:#475569;font-family:sans-serif;margin-top:2px;">{vd}</div></div>'
                 f'<div style="font-size:20px;font-weight:900;color:{cl};font-family:monospace;">{vv}</div>'
                 f'</div>', unsafe_allow_html=True)
+
+    st.divider()
+    st.markdown(
+        '<div style="font-size:11px;font-weight:900;color:#94a3b8;text-transform:uppercase;'
+        'letter-spacing:.15em;margin-bottom:10px;">📊 Balance Global del Sistema</div>',
+        unsafe_allow_html=True)
+    
+    bc1, bc2 = st.columns(2)
+    with bc1:
+        st.info(f"**Producción Total:** {total_prod} lotes/h  \n(Objetivo: 60)")
+    with bc2:
+        st.success(f"**Capacidad Consumo:** 60.0 lotes/h  \n(15.0 x 4 máquinas)")
+    
+    st.caption("Nota: El sistema está balanceado a nivel global (60/60). Si una entrada supera los 15 lotes/h, "
+               "se debe ajustar la mezcla en las salidas para redistribuir la carga.")
 
     st.divider()
     st.markdown(

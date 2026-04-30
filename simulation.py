@@ -315,12 +315,12 @@ _r3d = max(0, agv_r3 - _r3a - _r3b - _r3c)
 valid_S1  = sum_S1 == 20
 valid_S2  = sum_S2 == 20
 valid_S3  = sum_S3 == 20
-valid_E1  = flow_LC  <= 15  # SIEMPRE FALLA — E1 recibe 20 de S1 (restricción estructural)
+valid_E1  = flow_LC  <= 15  # SIEMPRE FALLA — restricción estructural (20 > 15)
 valid_E2  = flow_A   <= 15
 valid_E3  = flow_E3  <= 15
 valid_E4  = flow_E4  <= 15
-# E1 se excluye del estado global (es falla estructural esperada del diseño de planta)
-all_valid = all([valid_S1, valid_S2, valid_S3, valid_E2, valid_E3, valid_E4])
+# all_valid incluye E1 — siempre False (alerta estructural permanente)
+all_valid = all([valid_S1, valid_S2, valid_S3, valid_E1, valid_E2, valid_E3, valid_E4])
 
 # ══════════════════════════════════════════════════════════════════════════
 # ENCABEZADO
@@ -366,8 +366,8 @@ st.markdown(f"""
 _sc = "#10b981" if all_valid else "#f59e0b"
 _si = "✅" if all_valid else "⚠️"
 _st = "SISTEMA ÓPTIMO" if all_valid else "AJUSTAR"
-# El máximo alcanzable es 6/6: E1 siempre viola (estructural)
-_scnt = sum([valid_S1, valid_S2, valid_S3, valid_E2, valid_E3, valid_E4])
+# Contador: incluye E1 (siempre false) — máximo alcanzable = 6/7
+_scnt = sum([valid_S1, valid_S2, valid_S3, valid_E1, valid_E2, valid_E3, valid_E4])
 _uc = "#10b981" if avg_util < 80 else ("#f59e0b" if avg_util < 95 else "#ef4444")
 
 kc1, kc2, kc3, kc4 = st.columns(4)
@@ -401,7 +401,7 @@ with kc4:
         f'<div class="kpi-wrap" style="border-color:rgba({_rgb},.25);">'
         f'<div class="kpi-lbl" style="color:{_sc};">{_si} Estado</div>'
         f'<div style="font-size:26px;font-weight:900;color:{_sc};margin:8px 0;">{_st}</div>'
-        f'<div style="font-size:13px;color:#94a3b8;margin-top:4px;">{_scnt}/6 restricciones ✓</div>'
+        f'<div style="font-size:13px;color:#94a3b8;margin-top:4px;">{_scnt}/7 restricciones ✓</div>'
         f'<div class="kpi-sub">Operación 24h · 365 días/año</div>'
         f'</div>', unsafe_allow_html=True)
 
